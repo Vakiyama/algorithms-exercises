@@ -25,57 +25,77 @@
 
 class LinkedList {
   constructor() {
+    this.length = 0;
     this.head = null;
     this.tail = null;
-    this.length = 0;
   }
+
+  get(index) {
+    const node = this._find(index, this.head);
+    if (node) return node.value;
+
+    return undefined;
+  }
+
+  _find(index, node) {
+    if (index === 0) return node;
+    if (!node) return undefined;
+
+    return this._find(index - 1, node.next);
+  }
+
   push(value) {
     const node = new Node(value);
-    this.length++;
-    if (!this.head) {
+    if (this.head === null) {
       this.head = node;
-    } else {
+    }
+
+    if (this.tail !== null) {
       this.tail.next = node;
     }
+
     this.tail = node;
+    this.length++;
   }
+
   pop() {
-    return this.delete(this.length - 1);
-  }
-  _find(index) {
-    if (index >= this.length) return null;
-    let current = this.head;
-    for (let i = 0; i < index; i++) {
-      current = current.next;
+    const valueToReturn = this.tail.value;
+
+    const newTail = this._find(this.length - 2, this.head);
+
+    if (newTail) {
+      newTail.next = null;
+      this.tail = newTail;
+    } else {
+      this.tail = this.head;
     }
 
-    return current;
+    this.length--;
+
+    return valueToReturn;
   }
-  get(index) {
-    const node = this._find(index);
-    if (!node) return void 0;
-    return node.value;
-  }
-  delete(index) {
-    if (index === 0) {
-      const head = this.head;
-      if (head) {
-        this.head = head.next;
-      } else {
+
+  delete(indexToDelete) {
+    const nodeBefore = this._find(indexToDelete - 1, this.head);
+
+    if (!nodeBefore) {
+      const node = this.head;
+      if (this.length === 1) {
         this.head = null;
         this.tail = null;
+      } else {
+        this.head = this.head.next;
       }
       this.length--;
-      return head.value;
+      return node;
     }
 
-    const node = this._find(index - 1);
-    const excise = node.next;
-    if (!excise) return null;
-    node.next = excise.next;
-    if (!node.next) this.tail = node.next;
+    const nodeToDelete = nodeBefore.next;
+
+    nodeBefore.next = nodeToDelete.next;
     this.length--;
-    return excise.value;
+
+    return nodeToDelete.value;
   }
 }
 
@@ -88,7 +108,7 @@ class Node {
 
 // unit tests
 // do not modify the below code
-describe("LinkedList", function () {
+describe('LinkedList', function () {
   const range = (length) =>
     Array.apply(null, { length: length }).map(Number.call, Number);
   const abcRange = (length) =>
@@ -99,45 +119,45 @@ describe("LinkedList", function () {
     list = new LinkedList();
   });
 
-  test("constructor", () => {
+  test('constructor', () => {
     expect(list).toEqual(expect.any(LinkedList));
   });
 
-  test("push", () => {
+  test('push', () => {
     abcRange(26).map((character) => list.push(character));
     expect(list.length).toEqual(26);
   });
 
-  test("pop", () => {
+  test('pop', () => {
     abcRange(13).map((character) => list.push(character));
     expect(list.length).toEqual(13);
     range(10).map(() => list.pop());
     expect(list.length).toEqual(3);
-    expect(list.pop()).toEqual("c");
+    expect(list.pop()).toEqual('c');
   });
 
-  test("get", () => {
-    list.push("first");
-    expect(list.get(0)).toEqual("first");
-    list.push("second");
-    expect(list.get(1)).toEqual("second");
-    expect(list.get(0)).toEqual("first");
+  test('get', () => {
+    list.push('first');
+    expect(list.get(0)).toEqual('first');
+    list.push('second');
+    expect(list.get(1)).toEqual('second');
+    expect(list.get(0)).toEqual('first');
     abcRange(26).map((character) => list.push(character));
-    expect(list.get(27)).toEqual("z");
-    expect(list.get(0)).toEqual("first");
-    expect(list.get(9)).toEqual("h");
+    expect(list.get(27)).toEqual('z');
+    expect(list.get(0)).toEqual('first');
+    expect(list.get(9)).toEqual('h');
     list.pop();
-    expect(list.get(list.length - 1)).toEqual("y");
+    expect(list.get(list.length - 1)).toEqual('y');
   });
 
-  test("delete", () => {
+  test('delete', () => {
     abcRange(26).map((character) => list.push(character));
     list.delete(13);
     expect(list.length).toEqual(25);
-    expect(list.get(12)).toEqual("m");
-    expect(list.get(13)).toEqual("o");
+    expect(list.get(12)).toEqual('m');
+    expect(list.get(13)).toEqual('o');
     list.delete(0);
     expect(list.length).toEqual(24);
-    expect(list.get(0)).toEqual("b");
+    expect(list.get(0)).toEqual('b');
   });
 });
