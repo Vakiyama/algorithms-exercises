@@ -24,7 +24,7 @@
   }
 */
 
-const { getUser } = require('./jobs');
+import { getUser } from './jobs';
 
 function findMostCommonTitle(myId, degreesOfSeparation) {
   const start = getUser(myId);
@@ -60,7 +60,6 @@ function doSearch(queue, resultsMap, visitedSet, depth) {
     });
   });
 
-
   doSearch(nextQueue, resultsMap, visitedSet, depth - 1);
 }
 
@@ -83,7 +82,7 @@ describe('findMostCommonTitle', function () {
   });
 });
 
-test('extra credit', function () {
+describe('extra credit', function () {
   test("user 1 with 7 degrees of separation – this will traverse every user that's followed by someone else. five users are unfollowed", () => {
     expect(findMostCommonTitle(1, 7)).toBe('Geological Engineer');
   });
