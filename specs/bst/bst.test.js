@@ -17,18 +17,110 @@ right - Node/object - the right node which itself may be another tree
 */
 
 class Tree {
-  // code goes here
+  constructor() {
+    this.root = null;
+  }
+
+  toObject() {
+    return this.root;
+  }
+
+  delete(value) {
+    this._deleteInner(value, this.root);
+  }
+
+  _deleteInner(value, node) {
+    // if (node === null) return;
+    // const node = this._findInner(value, node);
+    // // replace this node with the value of the smallest left child
+    // const smallestChildNode = this._findSmallestLeftChild(node, undefined);
+    // if (!smallestChildNode) {
+    //   const parentNode = this._findParentInner(value, node);
+    //   // leaf, remove this node from parent
+    //   if (node.value >= parentNode.value) parentNode.right = null;
+    //   if (node.value < parentNode.value) parentNode.left = null;
+    // } else {
+    //   node.value = smallestChildNode.value;
+    //   this._deleteInner(smallestChildNode.value, node.left);
+    // }
+  }
+
+  _findSmallestLeftChild(node, smallest) {
+    if (node === null) return smallest;
+
+    let newSmallest;
+
+    if (!smallest) {
+      newSmallest = node;
+    } else {
+      newSmallest = node.value < smallest.value ? node : smallest;
+    }
+
+    return this._findSmallestLeftChild(node.left, newSmallest);
+  }
+
+  add(value) {
+    if (this.root === null) {
+      this.root = new Node(value);
+      return;
+    }
+
+    this._addInner(value, this.root);
+  }
+
+  _addInner(value, node) {
+    if (node.value >= value) {
+      if (node.left === null) {
+        node.left = new Node(value);
+        return;
+      }
+      this._addInner(value, node.left);
+    } else {
+      if (node.right === null) {
+        node.right = new Node(value);
+        return;
+      }
+      this._addInner(value, node.right);
+    }
+  }
+
+  _findParent(value) {
+    return this._findParentInner(value, this.root, undefined);
+  }
+
+  _findParentInner(value, node, parent) {
+    if (node === null) return undefined;
+
+    if (node.value === value) return parent;
+    if (node.value >= value) return _findParentInner(value, node.left, node);
+    if (node.value < value) return _findParentInner(value, node.right, node);
+  }
+
+  _find(value) {
+    return this._findInner(value, this.root);
+  }
+
+  _findInner(value, node) {
+    if (node === null) return undefined;
+
+    if (node.value === value) return node;
+    if (node.value >= value) return _findInner(value, node.left);
+    if (node.value < value) return _findInner(value, node.right);
+  }
 }
 
-// you might consider using a Node class too
-// class Node {
-//   // code maybe goes here
-// }
+class Node {
+  constructor(value) {
+    this.value = value;
+    this.left = null;
+    this.right = null;
+  }
+}
 
 // unit tests
 // do not modify the below code
-describe.skip("Binary Search Tree", function () {
-  it("creates a correct tree", () => {
+describe('Binary Search Tree', function () {
+  it('creates a correct tree', () => {
     const nums = [3, 7, 4, 6, 5, 1, 10, 2, 9, 8];
     const tree = new Tree();
     nums.map((num) => tree.add(num));

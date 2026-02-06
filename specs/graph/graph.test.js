@@ -23,33 +23,68 @@
     connections: [687, 997, 437]
   }
 */
-const { getUser } = require("./jobs");
 
-const findMostCommonTitle = (myId, degreesOfSeparation) => {
-  // code goes here
-};
+const { getUser } = require('./jobs');
+
+function findMostCommonTitle(myId, degreesOfSeparation) {
+  const start = getUser(myId);
+  const resultsMap = {};
+
+  doSearch([start], resultsMap, new Set(), degreesOfSeparation);
+
+  return Object.entries(resultsMap).reduce(
+    (acc, current) => {
+      const [_, count] = acc;
+
+      if (current[1] > count) return current;
+      return acc;
+    },
+    [start.title, -Infinity]
+  )[0];
+}
+
+function doSearch(queue, resultsMap, visitedSet, depth) {
+  if (queue.length === 0 || depth === 0) return;
+
+  const nextQueue = [];
+
+  queue.forEach((user) => {
+    user.connections.map(getUser).forEach((user) => {
+      if (visitedSet.has(user.id)) return; // ignore this user, already visited
+      visitedSet.add(user.id);
+      nextQueue.push(user);
+
+      if (resultsMap[user.title]) {
+        resultsMap[user.title]++;
+      } else resultsMap[user.title] = 1;
+    });
+  });
+
+
+  doSearch(nextQueue, resultsMap, visitedSet, depth - 1);
+}
 
 // unit tests
 // do not modify the below code
-test.skip("findMostCommonTitle", function () {
+describe('findMostCommonTitle', function () {
   // the getUser function and data comes from this CodePen: https://codepen.io/btholt/pen/NXJGwa?editors=0010
-  test("user 30 with 2 degrees of separation", () => {
-    expect(findMostCommonTitle(30, 2)).toBe("Librarian");
+  test('user 30 with 2 degrees of separation', () => {
+    expect(findMostCommonTitle(30, 2)).toBe('Librarian');
   });
 
-  test("user 11 with 3 degrees of separation", () => {
-    expect(findMostCommonTitle(11, 3)).toBe("Graphic Designer");
+  test('user 11 with 3 degrees of separation', () => {
+    expect(findMostCommonTitle(11, 3)).toBe('Graphic Designer');
   });
 
-  test("user 307 with 4 degrees of separation", () => {
+  test('user 307 with 4 degrees of separation', () => {
     // if you're failing here with "Clinical Specialist, you're probably not filtering users who
     // appear more than once in people's connections
-    expect(findMostCommonTitle(306, 4)).toBe("Pharmacist");
+    expect(findMostCommonTitle(306, 4)).toBe('Pharmacist');
   });
 });
 
-test.skip("extra credit", function () {
+test('extra credit', function () {
   test("user 1 with 7 degrees of separation – this will traverse every user that's followed by someone else. five users are unfollowed", () => {
-    expect(findMostCommonTitle(1, 7)).toBe("Geological Engineer");
+    expect(findMostCommonTitle(1, 7)).toBe('Geological Engineer');
   });
 });
